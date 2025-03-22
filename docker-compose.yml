@@ -1,0 +1,180 @@
+version: "3"
+
+
+
+services:
+
+  # MYSQL
+  book-mysql:
+    image: mysql:8.0
+    #image: mysql:8.0.33
+    #image: quay.io/debezium/example-mysql:2.1
+    container_name: book-mysql
+    hostname: book-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql
+      - MYSQL_USER=book-user
+      - MYSQL_PASSWORD=book
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - share_data:/partage
+    #network_mode: host
+    networks:
+      - bigdata
+    ports:
+      - "8889:3306"  
+ 
+  ## NIFI
+  #nanp-nifi:
+  #  image: apache/nifi:1.24.0
+  #  container_name: nanp-nifi
+  #  hostname: nanp-nifi
+  #  restart: always
+  #  environment:
+  #    - NIFI_WEB_HTTPS_PORT=8443
+  #    #- NIFI_WEB_HTTP_PORT=8080
+  #    - SINGLE_USER_CREDENTIALS_USERNAME=nifi_user
+  #    - SINGLE_USER_CREDENTIALS_PASSWORD=lundimardi1234
+  #  volumes:
+  #    #- nifi_data:/opt/nifi/nifi-current/
+  #    - share_data:/partage
+  #  networks:
+  #    - bigdata
+  #  ports:
+  #    - "8887:8080"
+  #    - "8443:8443"
+   
+ 
+  
+  ## ELASTICSEARCH  
+  #elasticsearch:
+  #  #image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+  #  image: docker.elastic.co/elasticsearch/elasticsearch:8.3.2
+  #  container_name: elasticsearch
+  #  hostname: elasticsearch
+  #  restart: always
+  #  environment:
+  #    - xpack.security.enabled=false
+  #    - discovery.type=single-node
+  #    - node.name=elasticsearch
+  #    - cluster.name=docker-cluster
+  #    ##- cluster.initial_master_nodes=elasticsearch
+  #    - bootstrap.memory_lock=true
+  #    - "ES_JAVA_OPTS=-Xms256M -Xmx256M"
+  #    #- http.cors.enabled=true
+  #    #- http.cors.allow-origin=*
+  #    ##- network.host=_eth0_
+  #  ulimits:
+  #    memlock:
+  #      soft: -1
+  #      hard: -1
+  #    nofile:
+  #      soft: 65536
+  #      hard: 65536
+  #  cap_add:
+  #    - IPC_LOCK
+  #  volumes:
+  #    - share_data:/partage
+  #    #- ./elasticsearch-data:/usr/share/elasticsearch/data
+  #    - elastic_data:/usr/share/elasticsearch/data
+  #  ports:
+  #    - 9200:9200
+  #  networks:
+  #    - bigdata
+  
+  ## KIBANA
+  #kibana:
+  #  container_name: kibana
+  #  #image: docker.elastic.co/kibana/kibana:7.4.0
+  #  image: docker.elastic.co/kibana/kibana:8.3.2
+  #  hostname: kibana
+  #  restart: always
+  #  environment:
+  #    - ELASTICSEARCH_HOSTS=http://elasticsearch:9200    # address of elasticsearch docker container which kibana will connect
+  #  ports:
+  #    - 5601:5601
+  #  depends_on:
+  #    - elasticsearch
+  #  volumes:
+  #    - share_data:/partage
+  #  networks:
+  #    - bigdata
+    
+volumes:
+  hadoop_namenode:
+   driver: local # Define the driver and options under the volume name
+   driver_opts:
+     type: none
+     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_hadoop\namenode
+     o: bind
+  hadoop_datanode:
+   driver: local # Define the driver and options under the volume name
+   driver_opts:
+     type: none
+     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_hadoop\datanode
+     o: bind
+  data1-1:
+    driver: local # Define the driver and options under the volume name
+    driver_opts:
+      type: none
+      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\minio_volume\data1\data1_1
+      o: bind
+  data1-2:
+    driver: local # Define the driver and options under the volume name
+    driver_opts:
+      type: none
+      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\minio_volume\data1\data1_2
+      o: bind
+  hadoop_historyserver:
+   driver: local # Define the driver and options under the volume name
+   driver_opts:
+     type: none
+     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_hadoop\historyserver
+     o: bind
+  mysql_data:
+    driver: local # Define the driver and options under the volume name
+    driver_opts:
+      type: none
+      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_mysql
+      o: bind
+  #mongo_data:
+  #  driver: local # Define the driver and options under the volume name
+  #  driver_opts:
+  #    type: none
+  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_mogodb\db
+  #    o: bind
+  #mongo_log:
+  #  driver: local # Define the driver and options under the volume name
+  #  driver_opts:
+  #    type: none
+  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_mogodb\log
+  #    o: bind
+  #elastic_data:
+  #  driver: local # Define the driver and options under the volume name
+  #  driver_opts:
+  #    type: none
+  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_elastic
+  #    o: bind
+  #kibana_data:
+  #  driver: local # Define the driver and options under the volume name
+  #  driver_opts:
+  #    type: none
+  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_kibana
+  #    o: bind
+  share_data:
+    driver: local # Define the driver and options under the volume name
+    driver_opts:
+      type: none
+      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\partage_nifi\partage
+      o: bind
+  #nifi_data:
+  #  driver: local # Define the driver and options under the volume name
+  #  driver_opts:
+  #    type: none
+  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\partage_nifi\nifi_data
+  #    o: bind
+  
+networks:
+  bigdata:
+#    name: bigdata
+#    external: true
