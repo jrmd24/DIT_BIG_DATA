@@ -1,0 +1,27 @@
+FROM ubuntu:22.04
+
+RUN apt-get update -y
+
+# Set the working directory in the container
+WORKDIR /usr/app
+
+RUN apt-get install -y python3-pip
+
+# Install system dependencies required by dbt and Snowflake connector
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dbt-core and dbt-snowflake
+RUN pip install --no-cache-dir dbt-core dbt-snowflake
+
+# Copy your dbt project files (optional, if you want to build within the container)
+# COPY . .
+
+# Set the entrypoint to dbt (optional, if you want to run dbt commands directly)
+ENTRYPOINT ["/bin/bash"]
+
+# You can define a default command if needed
+# CMD ["--help"]

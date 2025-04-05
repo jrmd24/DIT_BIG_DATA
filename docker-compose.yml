@@ -1,10 +1,7 @@
-version: "3"
-
+version: "3.7"
 
 
 services:
-
-  # MYSQL
   book-mysql:
     image: mysql:8.0
     #image: mysql:8.0.33
@@ -22,7 +19,102 @@ services:
     networks:
       - bigdata
     ports:
-      - "8889:3306"  
+      - "8889:3306" 
+  dbt:
+    image: jrmd24/dbt # Use the version you prefer
+    build:
+      context: .
+      dockerfile: Dockerfile_DBT
+    container_name: dbt
+    hostname: dbt
+    volumes:
+      - dbt_data:/usr/app
+      - share_data:/partage
+    #network_mode: host
+    networks:
+      - bigdata
+
+  airflow-scheduler:
+    image: jrmd24/airflow # Use the version you prefer
+    build:
+      context: .
+      dockerfile: Dockerfile_Airflow
+    #depends_on:
+    #  - airflow-webserver
+    #  - airflow-init
+    environment:
+      - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor # Or use a more robust executor like CeleryExecutor or KubernetesExecutor for production
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
+      - AIRFLOW__WEBSERVER__RBAC=True
+    volumes:
+      - airflow_dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+      - airflow_config:/opt/airflow/config # Optional: for custom airflow.cfg
+      - share_data:/partage
+    ports:
+      - "8080:8080"
+    networks:
+      - bigdata
+    restart: always
+    command: ["airflow", "scheduler"]
+
+  airflow-webserver:
+    image: jrmd24/airflow # Use the version you prefer
+    build:
+      context: .
+      dockerfile: Dockerfile_Airflow
+    #depends_on:
+    #  - airflow-init
+    environment:
+      - AIRFLOW__WEBSERVER__RBAC=True
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
+    volumes:
+      - airflow_dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+      - airflow_config:/opt/airflow/config # Optional
+      - share_data:/partage
+    ports:
+      - "8081:8081"
+    networks:
+      - bigdata
+    restart: always
+    command: ["airflow", "webserver"]
+
+
+  airflow-init:
+    image: jrmd24/airflow # Use the version you prefer
+    build:
+      context: .
+      dockerfile: Dockerfile_Airflow
+    #depends_on:
+    #  - airflow-postgres
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
+    volumes:
+      - airflow_dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+      - airflow_config:/opt/airflow/config # Optional
+      - share_data:/partage
+    networks:
+      - bigdata
+    command: ["airflow", "db", "init"]
+    restart: on-failure
+
+  airflow-postgres:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - airflow_postgres_data:/var/lib/postgresql/data
+      - share_data:/partage
+    ports:
+      - "5432:5432" # Optional: expose for local debugging
+    networks:
+      - bigdata
+
  
   ## NIFI
   #nanp-nifi:
@@ -101,77 +193,65 @@ services:
   #    - bigdata
     
 volumes:
-  hadoop_namenode:
+  airflow_postgres_data:
    driver: local # Define the driver and options under the volume name
    driver_opts:
      type: none
-     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_hadoop\namenode
+     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\postgres_data
      o: bind
-  hadoop_datanode:
+  airflow_dags:
    driver: local # Define the driver and options under the volume name
    driver_opts:
      type: none
-     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_hadoop\datanode
+     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\dags
      o: bind
-  data1-1:
-    driver: local # Define the driver and options under the volume name
-    driver_opts:
-      type: none
-      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\minio_volume\data1\data1_1
-      o: bind
-  data1-2:
-    driver: local # Define the driver and options under the volume name
-    driver_opts:
-      type: none
-      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\minio_volume\data1\data1_2
-      o: bind
-  hadoop_historyserver:
+  airflow_logs:
    driver: local # Define the driver and options under the volume name
    driver_opts:
      type: none
-     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_hadoop\historyserver
+     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\logs
+     o: bind
+  airflow_config:
+   driver: local # Define the driver and options under the volume name
+   driver_opts:
+     type: none
+     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\config
      o: bind
   mysql_data:
     driver: local # Define the driver and options under the volume name
     driver_opts:
       type: none
-      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_mysql
+      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\mysql_volume
       o: bind
-  #mongo_data:
+  dbt_data:
+    driver: local # Define the driver and options under the volume name
+    driver_opts:
+      type: none
+      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\dbt_volume
+      o: bind
+  #elastic_data: 
   #  driver: local # Define the driver and options under the volume name
   #  driver_opts:
   #    type: none
-  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_mogodb\db
-  #    o: bind
-  #mongo_log:
-  #  driver: local # Define the driver and options under the volume name
-  #  driver_opts:
-  #    type: none
-  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_mogodb\log
-  #    o: bind
-  #elastic_data:
-  #  driver: local # Define the driver and options under the volume name
-  #  driver_opts:
-  #    type: none
-  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_elastic
+  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\volume_elastic
   #    o: bind
   #kibana_data:
   #  driver: local # Define the driver and options under the volume name
   #  driver_opts:
   #    type: none
-  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\volume_kibana
+  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\volume_kibana
   #    o: bind
   share_data:
     driver: local # Define the driver and options under the volume name
     driver_opts:
       type: none
-      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\partage_nifi\partage
+      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\partage_nifi\partage
       o: bind
   #nifi_data:
   #  driver: local # Define the driver and options under the volume name
   #  driver_opts:
   #    type: none
-  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Dev\docker_volumes\partage_nifi\nifi_data
+  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\partage_nifi\nifi_data
   #    o: bind
   
 networks:
