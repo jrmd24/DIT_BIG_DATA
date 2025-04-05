@@ -2,10 +2,10 @@ FROM ubuntu:22.04
 
 RUN apt-get update -y
 
+RUN apt-get install -y python3-pip
+
 # Set the working directory in the container
 WORKDIR /usr/app
-
-RUN apt-get install -y python3-pip
 
 # Install system dependencies required by dbt and Snowflake connector
 RUN apt-get update && apt-get install -y --no-install-recommends \

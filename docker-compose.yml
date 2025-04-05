@@ -1,6 +1,3 @@
-version: "3.7"
-
-
 services:
   book-mysql:
     image: mysql:8.0
@@ -34,75 +31,31 @@ services:
     networks:
       - bigdata
 
-  airflow-scheduler:
+  airflow:
     image: jrmd24/airflow # Use the version you prefer
     build:
       context: .
       dockerfile: Dockerfile_Airflow
-    #depends_on:
-    #  - airflow-webserver
-    #  - airflow-init
     environment:
-      - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
-      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor # Or use a more robust executor like CeleryExecutor or KubernetesExecutor for production
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
-      - AIRFLOW__WEBSERVER__RBAC=True
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor  # Use LocalExecutor for simplicity in a single container
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow  # Default, can be changed
+      AIRFLOW__WEBSERVER__RBAC: 'True' # Enable RBAC for the UI
+      # Add any other Airflow environment variables you need
     volumes:
       - airflow_dags:/opt/airflow/dags
       - airflow_logs:/opt/airflow/logs
-      - airflow_config:/opt/airflow/config # Optional: for custom airflow.cfg
+      - airflow_config:/opt/airflow/config # Optional
+      - airflow_plugins:/opt/airflow/plugins
       - share_data:/partage
     ports:
       - "8080:8080"
     networks:
       - bigdata
-    restart: always
-    command: ["airflow", "scheduler"]
-
-  airflow-webserver:
-    image: jrmd24/airflow # Use the version you prefer
-    build:
-      context: .
-      dockerfile: Dockerfile_Airflow
-    #depends_on:
-    #  - airflow-init
-    environment:
-      - AIRFLOW__WEBSERVER__RBAC=True
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
-    volumes:
-      - airflow_dags:/opt/airflow/dags
-      - airflow_logs:/opt/airflow/logs
-      - airflow_config:/opt/airflow/config # Optional
-      - share_data:/partage
-    ports:
-      - "8081:8081"
-    networks:
-      - bigdata
-    restart: always
-    command: ["airflow", "webserver"]
-
-
-  airflow-init:
-    image: jrmd24/airflow # Use the version you prefer
-    build:
-      context: .
-      dockerfile: Dockerfile_Airflow
-    #depends_on:
-    #  - airflow-postgres
-    environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres:5432/airflow
-    volumes:
-      - airflow_dags:/opt/airflow/dags
-      - airflow_logs:/opt/airflow/logs
-      - airflow_config:/opt/airflow/config # Optional
-      - share_data:/partage
-    networks:
-      - bigdata
-    command: ["airflow", "db", "init"]
-    restart: on-failure
 
   airflow-postgres:
     image: postgres:13-alpine
+    container_name: airflow-postgres
+    hostname: airflow-postgres
     environment:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
@@ -114,7 +67,6 @@ services:
       - "5432:5432" # Optional: expose for local debugging
     networks:
       - bigdata
-
  
   ## NIFI
   #nanp-nifi:
@@ -211,8 +163,14 @@ volumes:
      type: none
      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\logs
      o: bind
-  airflow_config:
+  airflow_plugins:
    driver: local # Define the driver and options under the volume name
+   driver_opts:
+     type: none
+     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\plugins
+     o: bind
+  airflow_config:
+   driver: local # Define the driver and options under the volume name 
    driver_opts:
      type: none
      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\config
