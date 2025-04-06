@@ -21,7 +21,7 @@ RUN pip install --no-cache-dir dbt-core dbt-snowflake
 # COPY . .
 
 # Set the entrypoint to dbt (optional, if you want to run dbt commands directly)
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/sh", "-c", "while true; do sleep 1; done"]
 
 # You can define a default command if needed
 # CMD ["--help"]

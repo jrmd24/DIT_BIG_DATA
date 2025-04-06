@@ -27,7 +27,7 @@ EXPOSE 8080
 
 # Define the entrypoint to start both webserver and scheduler
 ENTRYPOINT ["/bin/bash", "-c", \
-    "airflow db init && \
+    "airflow db migrate && \
     airflow users create --username airflow --password airflow --firstname Airflow --lastname User --role Admin --email jr.diouf@gmail.com && \
     airflow webserver --port 8080 --daemon && \
     airflow scheduler --daemon && \

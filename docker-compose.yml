@@ -30,9 +30,12 @@ services:
     #network_mode: host
     networks:
       - bigdata
+    restart: always
 
   airflow:
     image: jrmd24/airflow # Use the version you prefer
+    container_name: airflow
+    hostname: airflow
     build:
       context: .
       dockerfile: Dockerfile_Airflow
@@ -51,6 +54,7 @@ services:
       - "8080:8080"
     networks:
       - bigdata
+    restart: always
 
   airflow-postgres:
     image: postgres:13-alpine
@@ -67,6 +71,7 @@ services:
       - "5432:5432" # Optional: expose for local debugging
     networks:
       - bigdata
+    restart: always
  
   ## NIFI
   #nanp-nifi:
