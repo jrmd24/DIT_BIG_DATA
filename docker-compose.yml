@@ -41,6 +41,7 @@ services:
       dockerfile: Dockerfile_Airflow
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor  # Use LocalExecutor for simplicity in a single container
+      AIRFLOW__CORE__AIRFLOW_CONFIG: /opt/airflow/config/airflow.cfg
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow  # Default, can be changed
       AIRFLOW__WEBSERVER__RBAC: 'True' # Enable RBAC for the UI
       # Add any other Airflow environment variables you need
