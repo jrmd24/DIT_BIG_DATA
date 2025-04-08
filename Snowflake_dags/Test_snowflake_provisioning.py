@@ -7,7 +7,6 @@ import snowflake.connector
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
-from airflow.providers.ssh.operators.ssh import SSHOperator
 from snowflake.connector.pandas_tools import write_pandas
 
 default_args = {
@@ -58,26 +57,24 @@ def load_to_snowflake(**kwargs):
         print(f"Success: {success}, Rows: {nrows}")
 
 
+if __name__ == "__main__":
+    extract_mysql_data()
+    load_to_snowflake()
+
+"""    
 extract_task = PythonOperator(
-    task_id="extract_mysql", python_callable=extract_mysql_data, dag=dag
+    task_id='extract_mysql', python_callable=extract_mysql_data, dag=dag
 )
 
 load_task = PythonOperator(
-    task_id="load_to_snowflake", python_callable=load_to_snowflake, dag=dag
+    task_id='load_to_snowflake', python_callable=load_to_snowflake, dag=dag
 )
 
-dbt_container_name = "dbt"
+dbt_container_name = 'dbt'
 
-"""dbt_run = BashOperator(
-    task_id="run_dbt_transformations",
-    bash_command=f"docker exec -it {dbt_container_name} bash -c 'cd /usr/app/bookshop && dbt run'",
+dbt_run = BashOperator(
+    task_id='run_dbt_transformations',
+    bash_command=f'docker exec -it {dbt_container_name} bash -c 'cd /usr/app/bookshop && dbt run'',
     dag=dag,
-)"""
-
-run_remote_command = SSHOperator(
-    task_id="run_dbt_transformations",
-    ssh_conn_id="dbt_ssh_connection",  # The connection ID you defined in Airflow
-    command="cd /usr/app/bookshop && dbt run",  # The command to execute on the remote server
-    dag=dag,
-    do_xcom_push=True,  # Optionally push the command output to XCom
 )
+"""

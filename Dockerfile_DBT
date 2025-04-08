@@ -12,16 +12,35 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
     libpq-dev \
+    openssh-server \
     && rm -rf /var/lib/apt/lists/*
 
 # Install dbt-core and dbt-snowflake
 RUN pip install --no-cache-dir dbt-core dbt-snowflake
 
+# Create a user for SSH
+ARG SSH_USERNAME=airflow
+ARG SSH_PASSWORD=airflow
+RUN useradd -m -s /bin/bash ${SSH_USERNAME}
+RUN echo "${SSH_USERNAME}:${SSH_PASSWORD}" | chpasswd
+
+# Setup SSH server configuration
+RUN mkdir -p /run/sshd
+RUN sed -i 's/#PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config
+RUN sed -i 's/#PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+RUN echo "ListenAddress 0.0.0.0" >> /etc/ssh/sshd_config
+
+# Expose the SSH port
+EXPOSE 22
+
+# Start the SSH server
+ENTRYPOINT ["/usr/sbin/sshd", "-D"]
+
 # Copy your dbt project files (optional, if you want to build within the container)
 # COPY . .
 
 # Set the entrypoint to dbt (optional, if you want to run dbt commands directly)
-ENTRYPOINT ["/bin/sh", "-c", "while true; do sleep 1; done"]
+#ENTRYPOINT ["/bin/sh", "-c", "while true; do sleep 1; done"]
 
 # You can define a default command if needed
 # CMD ["--help"]
