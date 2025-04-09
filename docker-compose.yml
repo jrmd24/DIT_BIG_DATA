@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   book-mysql:
     image: mysql:8.0
@@ -39,17 +38,14 @@ services:
     container_name: airflow
     hostname: airflow
     environment:
-<<<<<<< HEAD
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
       AIRFLOW__WEBSERVER__RBAC: 'True'
-=======
       AIRFLOW__CORE__EXECUTOR: LocalExecutor  # Use LocalExecutor for simplicity in a single container
       AIRFLOW__CORE__AIRFLOW_CONFIG: /opt/airflow/config/airflow.cfg
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow  # Default, can be changed
       AIRFLOW__WEBSERVER__RBAC: 'True' # Enable RBAC for the UI
       # Add any other Airflow environment variables you need
->>>>>>> 65090f6b0f62d3bccf22ef894ceff110dee78cb5
     volumes:
       - airflow_dags:/opt/airflow/dags
       - airflow_logs:/opt/airflow/logs
