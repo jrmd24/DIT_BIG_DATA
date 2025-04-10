@@ -65,18 +65,21 @@ list_of_tables = ["category", "books", "customers", "factures", "ventes"]
 
 def extract_snowflake_last_ingested_timestamps(**kwargs):
     list_of_last_ingested_timestamps = []
+    not_none_table_list = []
     for table in list_of_tables:
         cursor = sf_conn.cursor()
         sql = f"SELECT MAX(created_at) FROM {table};"
         cursor.execute(sql)
         result = cursor.fetchone()
         if result and result[0]:
+            not_none_table_list.append(table)
             list_of_last_ingested_timestamps.append(result[0])
         else:
-            list_of_last_ingested_timestamps.append(None)
+            continue
+            # list_of_last_ingested_timestamps.append(None)
 
     data = {
-        "table_name": list_of_tables,
+        "table_name": not_none_table_list,
         "last_ingested_ts": list_of_last_ingested_timestamps,
     }
     df = pd.DataFrame(data)
