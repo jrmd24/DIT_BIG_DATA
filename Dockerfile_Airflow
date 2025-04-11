@@ -26,13 +26,13 @@ RUN apt install -y procps net-tools iproute2 vim lsof
 # COPY ./plugins /opt/airflow/plugins
 
 # Expose Airflow webserver port
-EXPOSE 8080
+EXPOSE 8081
 
 # Define the entrypoint to start both webserver and scheduler
 ENTRYPOINT ["/bin/bash", "-c", \
     "airflow db migrate && \
     airflow users create --username airflow --password airflow --firstname Airflow --lastname User --role Admin --email jr.diouf@gmail.com && \
-    airflow webserver --port 8080 -D && \
+    airflow webserver --port 8081 -D && \
     airflow scheduler -D && \
     tail -f /dev/null"]
 

@@ -18,7 +18,7 @@ services:
     ports:
       - "8889:3306" 
   dbt:
-    image: jrmd24/dbt # Use the version you prefer
+    image: Beni25/dbt # Use the version you prefer
     build:
       context: .
       dockerfile: Dockerfile_DBT
@@ -33,7 +33,7 @@ services:
     restart: always
 
   airflow:
-    image: jrmd24/airflow # Use the version you prefer
+    image: Beni25/airflow # Use the version you prefer
     container_name: airflow
     hostname: airflow
     build:
@@ -52,7 +52,7 @@ services:
       - airflow_plugins:/opt/airflow/plugins
       - share_data:/partage
     ports:
-      - "8080:8080"
+      - "8081:8080"
     networks:
       - bigdata
     restart: always
@@ -155,67 +155,67 @@ volumes:
    driver: local # Define the driver and options under the volume name
    driver_opts:
      type: none
-     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\postgres_data
+     device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\airflow_volume\postgres_data
      o: bind
   airflow_dags:
    driver: local # Define the driver and options under the volume name
    driver_opts:
      type: none
-     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\dags
+     device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\airflow_volume\dags
      o: bind
   airflow_logs:
    driver: local # Define the driver and options under the volume name
    driver_opts:
      type: none
-     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\logs
+     device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\airflow_volume\logs
      o: bind
   airflow_plugins:
    driver: local # Define the driver and options under the volume name
    driver_opts:
      type: none
-     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\plugins
+     device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\airflow_volume\plugins
      o: bind
   airflow_config:
    driver: local # Define the driver and options under the volume name 
    driver_opts:
      type: none
-     device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\airflow_volume\config
+     device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\airflow_volume\config
      o: bind
   mysql_data:
     driver: local # Define the driver and options under the volume name
     driver_opts:
       type: none
-      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\mysql_volume
+      device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\mysql_volume
       o: bind
   dbt_data:
     driver: local # Define the driver and options under the volume name
     driver_opts:
       type: none
-      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\dbt_volume
+      device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\dbt_volume
       o: bind
   #elastic_data: 
   #  driver: local # Define the driver and options under the volume name
   #  driver_opts:
   #    type: none
-  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\volume_elastic
+  #    device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\volume_elastic
   #    o: bind
   #kibana_data:
   #  driver: local # Define the driver and options under the volume name
   #  driver_opts:
   #    type: none
-  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\volume_kibana
+  #    device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\volume_kibana
   #    o: bind
   share_data:
     driver: local # Define the driver and options under the volume name
     driver_opts:
       type: none
-      device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\partage_nifi\partage
+      device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\partage_nifi\partage
       o: bind
   #nifi_data:
   #  driver: local # Define the driver and options under the volume name
   #  driver_opts:
   #    type: none
-  #    device: E:\00.Divers\DIT\04.Cours\M2\01.TechnologiesBigData\Examen\docker_volumes\partage_nifi\nifi_data
+  #    device: C:\Users\User\Videos\Big_data\Exam\DIT_BIG_DATA\docker_volumes\partage_nifi\nifi_data
   #    o: bind
   
 networks:
