@@ -53,7 +53,8 @@ dag = DAG(
     "mysql_to_snowflake_dbt_pipeline",
     default_args=default_args,
     description="Ingest from MySQL to Snowflake and run dbt",
-    schedule_interval="@daily",
+    # schedule_interval="@daily",
+    schedule_interval=timedelta(minutes=5),
     catchup=False,
 )
 
