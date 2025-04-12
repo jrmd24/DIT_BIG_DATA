@@ -1,0 +1,39 @@
+# Use the same base image version
+FROM apache/airflow:2.10.5-python3.12
+
+
+
+
+# Install necessary providers and other packages
+RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" apache-airflow-providers-snowflake apache-airflow-providers-mysql apache-airflow-providers-ssh pandas mysql-connector-python snowflake-connector-python 
+
+USER root
+# Install any other dependencies you might need (e.g., for local MySQL)
+# You might need to install the MySQL client tools as well, depending on your setup.
+# Example (Debian-based):
+# RUN apt-get update && apt-get install -y --no-install-recommends libmysqlclient-dev gcc python3-dev && rm -rf /var/lib/apt/lists/*
+RUN apt update
+RUN apt install -y procps net-tools iproute2 vim lsof
+
+# Create necessary directories (if they don't exist)
+#RUN mkdir -p /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins
+
+# Set ownership of the directories to the airflow user
+#RUN chown -R airflow:airflow /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins
+
+# Copy your DAGs, plugins, etc. (optional)
+# COPY ./dags /opt/airflow/dags
+# COPY ./plugins /opt/airflow/plugins
+
+# Expose Airflow webserver port
+EXPOSE 8080
+
+# Define the entrypoint to start both webserver and scheduler
+ENTRYPOINT ["/bin/bash", "-c", \
+    "airflow db migrate && \
+    airflow users create --username airflow --password airflow --firstname Airflow --lastname User --role Admin --email jr.diouf@gmail.com && \
+    airflow webserver --port 8080 -D && \
+    airflow scheduler -D && \
+    tail -f /dev/null"]
+
+#USER root
